@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-ctrl-scroll-zoom",
+	"name": "Ctrl+Scroll Interface Zoom",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "使用 Ctrl + 滚轮缩放整个界面，精度 10%",
+	"author": "YourName",
+	"authorUrl": "https://github.com/yourname",
+	"isDesktopOnly": true
+}
