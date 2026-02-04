@@ -1,94 +1,122 @@
 /* main.js */
-const { Plugin, Notice } = require('obsidian');
+const { Plugin } = require('obsidian');
 const { webFrame } = require('electron');
 
 module.exports = class CtrlScrollZoomPlugin extends Plugin {
+    // 用于存储悬浮提示框的 DOM 元素引用
+    tipElement = null;
+    // 用于存储隐藏提示框的定时器
+    hideTimer = null;
+
     async onload() {
-        console.log('加载智能缩放插件：编辑器缩放字体 / 外部缩放界面');
+        console.log('加载智能缩放插件 (实时单行提示版)');
 
         this.registerDomEvent(window, 'wheel', (evt) => {
-            // 检查是否按下了 Ctrl (或 Mac 的 Meta/Command 键)
             if (evt.ctrlKey || evt.metaKey) {
-                
-                // 1. 阻止默认滚动行为
                 evt.preventDefault();
 
-                // 2. 核心逻辑：判断鼠标当前下的元素是否属于编辑器
-                // .markdown-source-view 是编辑模式
-                // .markdown-preview-view 是阅读模式
-                // .cm-editor 是源码编辑器的核心区域
                 const target = evt.target;
                 const isEditor = target.closest('.markdown-source-view') || 
                                  target.closest('.markdown-preview-view');
 
                 if (isEditor) {
-                    // === 场景 A：在编辑区，只调整字体大小 ===
                     this.adjustEditorFontSize(evt.deltaY);
                 } else {
-                    // === 场景 B：在非编辑区，调整整个界面缩放 ===
                     this.adjustInterfaceZoom(evt.deltaY);
                 }
             }
         }, { passive: false });
     }
 
-    // 调整编辑器字体大小 (修改 Obsidian 的外观设置)
+    // --- 显示实时提示 (核心改进) ---
+    showZoomTip(text) {
+        // 1. 如果提示框不存在，创建一个
+        if (!this.tipElement) {
+            this.tipElement = document.createElement('div');
+            
+            // 设置样式：居中、半透明黑底、圆角、置顶
+            this.tipElement.style.cssText = `
+                position: fixed;
+                top: 10%; 
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: var(--background-modifier-cover); 
+                color: var(--text-normal);
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 16px;
+                font-weight: bold;
+                z-index: 9999;
+                pointer-events: none;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                border: 1px solid var(--background-modifier-border);
+                backdrop-filter: blur(5px);
+            `;
+            document.body.appendChild(this.tipElement);
+        }
+
+        // 2. 更新文字内容
+        this.tipElement.innerText = text;
+
+        // 3. 清除之前的销毁定时器（防止滚动中途消失）
+        if (this.hideTimer) {
+            clearTimeout(this.hideTimer);
+        }
+
+        // 4. 设置新的销毁定时器 (0.8秒后消失)
+        this.hideTimer = setTimeout(() => {
+            if (this.tipElement) {
+                this.tipElement.remove();
+                this.tipElement = null;
+            }
+        }, 800);
+    }
+
+    // --- 编辑区字体调整 ---
     adjustEditorFontSize(deltaY) {
-        // 获取当前基础字体大小 (默认为 16)
         let currentSize = this.app.vault.getConfig('baseFontSize') || 16;
-        
-        // 向上滚动 (deltaY < 0) 字体变大，向下变小
-        // 步进设置为 1px
         const step = 1;
         let newSize = currentSize;
 
-        if (deltaY < 0) {
-            newSize += step;
-        } else {
-            newSize -= step;
-        }
+        if (deltaY < 0) newSize += step;
+        else newSize -= step;
 
-        // 限制字体大小范围 (例如 10px 到 64px)
         if (newSize < 10) newSize = 10;
         if (newSize > 64) newSize = 64;
 
-        // 如果大小有变化，则应用设置
         if (newSize !== currentSize) {
             this.app.vault.setConfig('baseFontSize', newSize);
-            // 触发样式更新
-            this.app.updateFontSize(); 
-            
-            // 提示
-            new Notice(`字体大小: ${newSize}px`, 500);
+            this.app.updateFontSize();
+            // 调用新的提示函数
+            this.showZoomTip(`字体大小: ${newSize}px`);
         }
     }
 
-    // 调整整体界面缩放 (Electron 层级)
+    // --- 界面缩放调整 ---
     adjustInterfaceZoom(deltaY) {
         let currentZoom = webFrame.getZoomFactor();
-        
-        // 步进 10%
-        const step = 0.1;
+        const step = 0.05;
         let newZoom = currentZoom;
 
-        if (deltaY < 0) {
-            newZoom += step;
-        } else {
-            newZoom -= step;
-        }
+        if (deltaY < 0) newZoom += step;
+        else newZoom -= step;
 
-        // 限制界面缩放范围 (0.5 到 3.0)
-        newZoom = parseFloat(newZoom.toFixed(1));
+        newZoom = parseFloat(newZoom.toFixed(2));
+
         if (newZoom < 0.5) newZoom = 0.5;
         if (newZoom > 3.0) newZoom = 3.0;
 
-        if (newZoom !== currentZoom) {
+        if (newZoom !== parseFloat(currentZoom.toFixed(2))) {
             webFrame.setZoomFactor(newZoom);
-            new Notice(`界面缩放: ${Math.round(newZoom * 100)}%`, 500);
+            // 调用新的提示函数
+            this.showZoomTip(`界面缩放: ${Math.round(newZoom * 100)}%`);
         }
     }
 
     onunload() {
-        console.log('卸载智能缩放插件');
+        // 卸载时如果还有残留的提示框，清理掉
+        if (this.tipElement) {
+            this.tipElement.remove();
+        }
     }
 }
