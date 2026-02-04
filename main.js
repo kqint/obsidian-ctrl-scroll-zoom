@@ -1,53 +1,94 @@
 /* main.js */
 const { Plugin, Notice } = require('obsidian');
-// 获取 Electron 的 webFrame，用于控制缩放
 const { webFrame } = require('electron');
 
 module.exports = class CtrlScrollZoomPlugin extends Plugin {
     async onload() {
-        console.log('加载 Ctrl+Scroll Zoom 插件');
+        console.log('加载智能缩放插件：编辑器缩放字体 / 外部缩放界面');
 
-        // 注册滚轮事件监听器
         this.registerDomEvent(window, 'wheel', (evt) => {
-            // 检查是否按下了 Ctrl 键 (Mac上通常是 Cmd，但在 Web 事件中 ctrlKey 对应 Ctrl)
-            // 如果需要兼容 Mac 的 Command 键，可以使用 evt.metaKey
-            if (evt.ctrlKey) {
+            // 检查是否按下了 Ctrl (或 Mac 的 Meta/Command 键)
+            if (evt.ctrlKey || evt.metaKey) {
                 
-                // 1. 阻止默认的滚轮行为（防止滚动页面）
+                // 1. 阻止默认滚动行为
                 evt.preventDefault();
 
-                // 2. 获取当前缩放比例
-                let currentZoom = webFrame.getZoomFactor();
+                // 2. 核心逻辑：判断鼠标当前下的元素是否属于编辑器
+                // .markdown-source-view 是编辑模式
+                // .markdown-preview-view 是阅读模式
+                // .cm-editor 是源码编辑器的核心区域
+                const target = evt.target;
+                const isEditor = target.closest('.markdown-source-view') || 
+                                 target.closest('.markdown-preview-view');
 
-                // 3. 确定缩放方向 (deltaY < 0 是向上滚动，即放大)
-                // 精度设置为 0.1 (10%)
-                const step = 0.1;
-                let newZoom = currentZoom;
-
-                if (evt.deltaY < 0) {
-                    newZoom += step;
+                if (isEditor) {
+                    // === 场景 A：在编辑区，只调整字体大小 ===
+                    this.adjustEditorFontSize(evt.deltaY);
                 } else {
-                    newZoom -= step;
+                    // === 场景 B：在非编辑区，调整整个界面缩放 ===
+                    this.adjustInterfaceZoom(evt.deltaY);
                 }
-
-                // 4. 限制最小和最大缩放比例 (例如 0.5 到 3.0)
-                // 加上 .toFixed(1) 防止浮点数精度问题（如 1.10000002）
-                newZoom = parseFloat(newZoom.toFixed(1));
-                if (newZoom < 0.5) newZoom = 0.5;
-                if (newZoom > 3.0) newZoom = 3.0;
-
-                // 5. 应用新的缩放比例
-                webFrame.setZoomFactor(newZoom);
-
-                // 6. (可选) 弹窗提示当前比例，提升体验
-                // 使用防抖或简单的 Notice
-                new Notice(`Zoom: ${Math.round(newZoom * 100)}%`, 500);
             }
-        }, { passive: false }); // passive: false 是必须的，否则无法 preventDefault
+        }, { passive: false });
+    }
+
+    // 调整编辑器字体大小 (修改 Obsidian 的外观设置)
+    adjustEditorFontSize(deltaY) {
+        // 获取当前基础字体大小 (默认为 16)
+        let currentSize = this.app.vault.getConfig('baseFontSize') || 16;
+        
+        // 向上滚动 (deltaY < 0) 字体变大，向下变小
+        // 步进设置为 1px
+        const step = 1;
+        let newSize = currentSize;
+
+        if (deltaY < 0) {
+            newSize += step;
+        } else {
+            newSize -= step;
+        }
+
+        // 限制字体大小范围 (例如 10px 到 64px)
+        if (newSize < 10) newSize = 10;
+        if (newSize > 64) newSize = 64;
+
+        // 如果大小有变化，则应用设置
+        if (newSize !== currentSize) {
+            this.app.vault.setConfig('baseFontSize', newSize);
+            // 触发样式更新
+            this.app.updateFontSize(); 
+            
+            // 提示
+            new Notice(`字体大小: ${newSize}px`, 500);
+        }
+    }
+
+    // 调整整体界面缩放 (Electron 层级)
+    adjustInterfaceZoom(deltaY) {
+        let currentZoom = webFrame.getZoomFactor();
+        
+        // 步进 10%
+        const step = 0.1;
+        let newZoom = currentZoom;
+
+        if (deltaY < 0) {
+            newZoom += step;
+        } else {
+            newZoom -= step;
+        }
+
+        // 限制界面缩放范围 (0.5 到 3.0)
+        newZoom = parseFloat(newZoom.toFixed(1));
+        if (newZoom < 0.5) newZoom = 0.5;
+        if (newZoom > 3.0) newZoom = 3.0;
+
+        if (newZoom !== currentZoom) {
+            webFrame.setZoomFactor(newZoom);
+            new Notice(`界面缩放: ${Math.round(newZoom * 100)}%`, 500);
+        }
     }
 
     onunload() {
-        console.log('卸载 Ctrl+Scroll Zoom 插件');
-        // Obsidian 会自动移除 registerDomEvent 注册的事件，无需手动清理
+        console.log('卸载智能缩放插件');
     }
 }
