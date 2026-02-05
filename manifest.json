@@ -1,6 +1,6 @@
 {
 	"id": "obsidian-ctrl-scroll-zoom",
-	"name": "Ctrl+Scroll Zoom Interface & Font Size",
+	"name": "Ctrl+Scroll Settings",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
 	"description": "智能缩放：在编辑器内 Ctrl+滚轮调节字体大小，在编辑器外调节整体界面缩放。支持自定义精度、OSD 实时提示及一键重置。",

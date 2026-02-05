@@ -156,7 +156,7 @@ class CtrlScrollZoomSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Ctrl+滚轮 缩放设置' });
+        containerEl.createEl('h2', { text: 'Ctrl+滚轮缩放设置' });
 
         new Setting(containerEl)
             .setName('界面缩放步长 (精度)')
