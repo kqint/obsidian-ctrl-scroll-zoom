@@ -28,28 +28,28 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
         }, { passive: false });
     }
 
-    // --- 显示实时提示 (核心改进) ---
+    // --- 显示实时提示 ---
     showZoomTip(text) {
         // 1. 如果提示框不存在，创建一个
         if (!this.tipElement) {
             this.tipElement = document.createElement('div');
             
-            // 设置样式：居中、半透明黑底、圆角、置顶
+            // 设置提示样式
             this.tipElement.style.cssText = `
                 position: fixed;
                 top: 10%; 
                 left: 50%;
                 transform: translateX(-50%);
-                background-color: var(--background-modifier-cover); 
-                color: var(--text-normal);
+                background-color: rgba(0, 0, 0, 0.75);
+                color: rgba(255, 255, 255, 0.95);
                 padding: 8px 16px;
                 border-radius: 20px;
                 font-size: 16px;
                 font-weight: bold;
                 z-index: 9999;
                 pointer-events: none;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-                border: 1px solid var(--background-modifier-border);
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(5px);
             `;
             document.body.appendChild(this.tipElement);
@@ -108,7 +108,6 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
 
         if (newZoom !== parseFloat(currentZoom.toFixed(2))) {
             webFrame.setZoomFactor(newZoom);
-            // 调用新的提示函数
             this.showZoomTip(`界面缩放: ${Math.round(newZoom * 100)}%`);
         }
     }
