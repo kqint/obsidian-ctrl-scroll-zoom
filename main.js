@@ -1,24 +1,32 @@
 /* main.js */
-const { Plugin } = require('obsidian');
+const { Plugin, PluginSettingTab, Setting, normalizePath } = require('obsidian');
 const { webFrame } = require('electron');
 
+// 1. 定义默认配置
+const DEFAULT_SETTINGS = {
+    zoomStep: 0.05
+}
+
+// 2. 自定义配置文件名
+const CONFIG_FILE_NAME = "config.json";
+
 module.exports = class CtrlScrollZoomPlugin extends Plugin {
-    // 用于存储悬浮提示框的 DOM 元素引用
     tipElement = null;
-    // 用于存储隐藏提示框的定时器
     hideTimer = null;
+    settings = null;
 
     async onload() {
-        console.log('加载智能缩放插件 (实时单行提示版)');
+        console.log('加载缩放插件');
+
+        await this.loadSettings();
+        this.addSettingTab(new CtrlScrollZoomSettingTab(this.app, this));
 
         this.registerDomEvent(window, 'wheel', (evt) => {
             if (evt.ctrlKey || evt.metaKey) {
                 evt.preventDefault();
-
                 const target = evt.target;
                 const isEditor = target.closest('.markdown-source-view') || 
                                  target.closest('.markdown-preview-view');
-
                 if (isEditor) {
                     this.adjustEditorFontSize(evt.deltaY);
                 } else {
@@ -27,14 +35,50 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
             }
         }, { passive: false });
     }
+    
+    // 获取配置文件的完整路径： .obsidian/plugins/插件名/config.json
+    getConfigPath() {
+        return normalizePath(`${this.manifest.dir}/${CONFIG_FILE_NAME}`);
+    }
+
+    async loadSettings() {
+        const path = this.getConfigPath();
+        try {
+            // 检查文件是否存在
+            if (await this.app.vault.adapter.exists(path)) {
+                // 读取文件内容
+                const data = await this.app.vault.adapter.read(path);
+                // 解析 JSON 并合并默认设置
+                this.settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(data));
+                console.log("配置已从 config.json 加载");
+            } else {
+                // 文件不存在则使用默认值
+                this.settings = Object.assign({}, DEFAULT_SETTINGS);
+            }
+        } catch (error) {
+            console.error("加载配置文件失败:", error);
+            this.settings = Object.assign({}, DEFAULT_SETTINGS);
+        }
+    }
+
+    async saveSettings() {
+        const path = this.getConfigPath();
+        try {
+            // 将设置对象转换为 JSON 字符串
+            const jsonString = JSON.stringify(this.settings, null, 2);
+            // 写入文件
+            await this.app.vault.adapter.write(path, jsonString);
+            console.log("配置已保存到 config.json");
+        } catch (error) {
+            console.error("保存配置文件失败:", error);
+        }
+    }
+    // ============================================================
 
     // --- 显示实时提示 ---
     showZoomTip(text) {
-        // 1. 如果提示框不存在，创建一个
         if (!this.tipElement) {
             this.tipElement = document.createElement('div');
-            
-            // 设置提示样式
             this.tipElement.style.cssText = `
                 position: fixed;
                 top: 10%; 
@@ -54,16 +98,8 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
             `;
             document.body.appendChild(this.tipElement);
         }
-
-        // 2. 更新文字内容
         this.tipElement.innerText = text;
-
-        // 3. 清除之前的销毁定时器（防止滚动中途消失）
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-        }
-
-        // 4. 设置新的销毁定时器 (0.8秒后消失)
+        if (this.hideTimer) clearTimeout(this.hideTimer);
         this.hideTimer = setTimeout(() => {
             if (this.tipElement) {
                 this.tipElement.remove();
@@ -77,17 +113,13 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
         let currentSize = this.app.vault.getConfig('baseFontSize') || 16;
         const step = 1;
         let newSize = currentSize;
-
         if (deltaY < 0) newSize += step;
         else newSize -= step;
-
         if (newSize < 10) newSize = 10;
-        if (newSize > 64) newSize = 64;
-
+        if (newSize > 100) newSize = 100;
         if (newSize !== currentSize) {
             this.app.vault.setConfig('baseFontSize', newSize);
             this.app.updateFontSize();
-            // 调用新的提示函数
             this.showZoomTip(`字体大小: ${newSize}px`);
         }
     }
@@ -95,17 +127,13 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
     // --- 界面缩放调整 ---
     adjustInterfaceZoom(deltaY) {
         let currentZoom = webFrame.getZoomFactor();
-        const step = 0.05;
+        const step = this.settings.zoomStep;
         let newZoom = currentZoom;
-
         if (deltaY < 0) newZoom += step;
         else newZoom -= step;
-
         newZoom = parseFloat(newZoom.toFixed(2));
-
         if (newZoom < 0.5) newZoom = 0.5;
-        if (newZoom > 3.0) newZoom = 3.0;
-
+        if (newZoom > 5.0) newZoom = 5.0;
         if (newZoom !== parseFloat(currentZoom.toFixed(2))) {
             webFrame.setZoomFactor(newZoom);
             this.showZoomTip(`界面缩放: ${Math.round(newZoom * 100)}%`);
@@ -113,9 +141,62 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
     }
 
     onunload() {
-        // 卸载时如果还有残留的提示框，清理掉
-        if (this.tipElement) {
-            this.tipElement.remove();
-        }
+        if (this.tipElement) this.tipElement.remove();
+    }
+}
+
+// --- 设置界面 ---
+class CtrlScrollZoomSettingTab extends PluginSettingTab {
+    constructor(app, plugin) {
+        super(app, plugin);
+        this.plugin = plugin;
+    }
+
+    display() {
+        const { containerEl } = this;
+        containerEl.empty();
+
+        containerEl.createEl('h2', { text: 'Ctrl+滚轮 缩放设置' });
+
+        new Setting(containerEl)
+            .setName('界面缩放步长 (精度)')
+            .setDesc('每次滚轮滚动时，界面缩放变化的比例。')
+            .addText(text => text
+                .setPlaceholder('0.05')
+                .setValue(String(this.plugin.settings.zoomStep))
+                .onChange(async (value) => {
+                    let val = parseFloat(value);
+                    if (isNaN(val) || val <= 0) val = 0.05;
+                    this.plugin.settings.zoomStep = val;
+                    await this.plugin.saveSettings();
+                }));
+
+        containerEl.createEl('br');
+
+        const currentZoom = Math.round(webFrame.getZoomFactor() * 100);
+        const zoomInfoSetting = new Setting(containerEl)
+            .setName('当前界面缩放比例')
+            .setDesc(`当前: ${currentZoom}%`)
+            .addButton(btn => btn
+                .setButtonText('重置为 100%')
+                .setCta()
+                .onClick(async () => {
+                    webFrame.setZoomFactor(1.0);
+                    zoomInfoSetting.setDesc(`当前: 100%`);
+                    this.plugin.showZoomTip('界面已重置: 100%');
+                }));
+
+        const currentFontSize = this.app.vault.getConfig('baseFontSize') || 16;
+        const fontInfoSetting = new Setting(containerEl)
+            .setName('当前编辑器字体大小')
+            .setDesc(`当前: ${currentFontSize}px`)
+            .addButton(btn => btn
+                .setButtonText('重置为 16px')
+                .onClick(async () => {
+                    this.app.vault.setConfig('baseFontSize', 16);
+                    this.app.updateFontSize();
+                    fontInfoSetting.setDesc(`当前: 16px`);
+                    this.plugin.showZoomTip('字体已重置: 16px');
+                }));
     }
 }
