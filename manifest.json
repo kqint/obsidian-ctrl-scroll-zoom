@@ -1,10 +1,10 @@
 {
 	"id": "obsidian-ctrl-scroll-zoom",
-	"name": "Ctrl+Scroll Interface Zoom",
+	"name": "Ctrl+Scroll Zoom Interface & Font Size",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "使用 Ctrl + 滚轮缩放整个界面，精度 10%",
-	"author": "YourName",
-	"authorUrl": "https://github.com/yourname",
+	"minAppVersion": "1.0.0",
+	"description": "智能缩放：在编辑器内 Ctrl+滚轮调节字体大小，在编辑器外调节整体界面缩放。支持自定义精度、OSD 实时提示及一键重置。",
+	"author": "kqint",
+	"authorUrl": "https://github.com/kqint",
 	"isDesktopOnly": true
 }
