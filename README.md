@@ -1,6 +1,6 @@
 # Obsidian Ctrl+Scroll Zoom
 
-一个界面缩放与字体缩放插件。通过 `Ctrl + 滚轮` 区分区域实现不同的缩放需求。
+Obsidian 界面缩放与字体缩放插件，通过 Ctrl + 滚轮 区分区域实现不同的缩放需求。
 
 ## 功能
 
