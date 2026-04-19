@@ -12,6 +12,7 @@ An Obsidian plugin that scales the interface and font with keyboard shortcuts, w
   - **Mouse in Non-Editor Area**: Zooms the **entire Obsidian interface** (including sidebar, menus).
 - **Real-time Status Display**: A clean **OSD indicator** appears at the top of the screen, showing the current scale/font size in real time.
 - **Customizable Settings**: Adjust zoom precision in settings, modify shortcuts (supports Ctrl/Cmd, Shift, Alt). Personal settings are automatically saved to `data.json`.
+- **Multi-language Support**: Supports Simplified Chinese and English. Switch languages in settings or follow Obsidian's system language.
 - **Reset Zoom Ratio**: A button in the settings page to quickly restore default font size (16px) or interface scale (100%).
 
 ## Why Use This Plugin?
