@@ -1,22 +1,32 @@
-# Obsidian Ctrl+Scroll Zoom
+# Obsidian Zone Scroll Zoom
 
-Obsidian 界面缩放与字体缩放插件，通过 Ctrl + 滚轮 区分区域实现不同的缩放需求。
+[简体中文](README-zh.md) | English
 
-## 功能
+An Obsidian plugin that scales the interface and font with keyboard shortcuts, where the zoom behavior adapts to your mouse position.
 
-- **缩放区域区分**：
-  - **鼠标在编辑区**：缩放**编辑器字体大小**（不影响 UI）。
-  - **鼠标在非编辑区**：缩放**整个 Obsidian 界面**（包括侧边栏、菜单）。
-- **实时状态显示**：屏幕上方显示简洁的 **OSD 提示框**，实时反馈当前比例/大小。
-- **自定义**：可在设置中调整缩放精度，个人配置自动保存到`data.json`。
-- **一键重置**：在设置页提供按钮，快速恢复默认字体 (16px) 或界面比例 (100%)。
+## Features
 
-## 安装
+- **Shortcut Zoom**: Use keyboard shortcuts to zoom in different areas (default: Ctrl + Scroll Wheel).
+- **Zone-Based Zooming**:
+  - **Mouse in Editor Area**: Zooms the **editor font size**.
+  - **Mouse in Non-Editor Area**: Zooms the **entire Obsidian interface** (including sidebar, menus).
+- **Real-time Status Display**: A clean **OSD indicator** appears at the top of the screen, showing the current scale/font size in real time.
+- **Customizable Settings**: Adjust zoom precision in settings, modify shortcuts (supports Ctrl/Cmd, Shift, Alt). Personal settings are automatically saved to `data.json`.
+- **Reset Zoom Ratio**: A button in the settings page to quickly restore default font size (16px) or interface scale (100%).
 
-1. 在 `.obsidian/plugins/` 目录下新建 `obsidian-ctrl-scroll-zoom` 文件夹。
-2. 将 `main.js` 和 `manifest.json` 放入该文件夹。
-3. 在 Obsidian 设置中启用插件。
+## Why Use This Plugin?
 
-## 许可证
+Obsidian natively supports zooming the interface with `Ctrl + =` and `Ctrl + -`, but this is a **global zoom** — the editor and interface scale together, with no way to adjust font size independently.
+
+This plugin lets you **zoom where your mouse is** — scale only the font in the editor area, and zoom the interface elsewhere. Just scroll, and it's done. Faster and more convenient.
+
+## Installation
+
+#### Manual Installation (This plugin is not yet available in the Obsidian community plugin marketplace)
+1. Create an `obsidian-zone-scroll-zoom` folder inside `.obsidian/plugins/`.
+2. Download [main.js](main.js) and [manifest.json](manifest.json) and place them into this folder.
+3. Enable the plugin in Obsidian settings.
+
+## License
 
 [MIT License](LICENSE)
