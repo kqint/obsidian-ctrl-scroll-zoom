@@ -11,16 +11,16 @@ const DEFAULT_SETTINGS = {
 // 2. 自定义配置文件名
 const CONFIG_FILE_NAME = "data.json";
 
-module.exports = class CtrlScrollZoomPlugin extends Plugin {
+module.exports = class ZoneScrollZoomPlugin extends Plugin {
     tipElement = null;
     hideTimer = null;
     settings = null;
 
     async onload() {
-        console.log('加载缩放插件');
+        console.log('加载 Zone Scroll Zoom 插件');
 
         await this.loadSettings();
-        this.addSettingTab(new CtrlScrollZoomSettingTab(this.app, this));
+        this.addSettingTab(new ZoneScrollZoomSettingTab(this.app, this));
 
         this.registerDomEvent(window, 'wheel', (evt) => {
             if (this.isModifierKeyPressed(evt)) {
@@ -168,7 +168,7 @@ module.exports = class CtrlScrollZoomPlugin extends Plugin {
 }
 
 // --- 设置界面 ---
-class CtrlScrollZoomSettingTab extends PluginSettingTab {
+class ZoneScrollZoomSettingTab extends PluginSettingTab {
     constructor(app, plugin) {
         super(app, plugin);
         this.plugin = plugin;
@@ -178,7 +178,7 @@ class CtrlScrollZoomSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Ctrl+滚轮缩放设置' });
+        containerEl.createEl('h2', { text: 'Zone Scroll Zoom 设置' });
 
         new Setting(containerEl)
             .setName('快捷键修饰键')
