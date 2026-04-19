@@ -1,0 +1,54 @@
+{
+  "settings": {
+    "title": "Zone Scroll Zoom 设置",
+    "language": {
+      "name": "语言",
+      "desc": "选择此插件的显示语言。Auto 将跟随 Obsidian 的语言设置。",
+      "options": {
+        "auto": "自动",
+        "en": "English",
+        "zh": "中文"
+      }
+    },
+    "modifierKey": {
+      "name": "快捷键修饰键",
+      "desc": "选择触发缩放的修饰键组合（配合滚轮使用）。",
+      "options": {
+        "ctrl": "Ctrl / Cmd",
+        "shift": "Shift",
+        "alt": "Alt",
+        "ctrl+shift": "Ctrl+Shift / Cmd+Shift",
+        "ctrl+alt": "Ctrl+Alt / Cmd+Alt",
+        "shift+alt": "Shift+Alt"
+      }
+    },
+    "zoomStep": {
+      "name": "界面缩放步长 (精度)",
+      "desc": "每次滚轮滚动时，界面缩放变化的比例。",
+      "placeholder": "0.05"
+    },
+    "currentZoom": {
+      "name": "当前界面缩放比例",
+      "desc": "当前: {value}%",
+      "reset": "重置为 100%",
+      "resetTip": "界面已重置: 100%"
+    },
+    "currentFontSize": {
+      "name": "当前编辑器字体大小",
+      "desc": "当前: {value}px",
+      "reset": "重置为 16px",
+      "resetTip": "字体已重置: 16px"
+    }
+  },
+  "tips": {
+    "fontSize": "字体大小: {value}px",
+    "zoomLevel": "界面缩放: {value}%"
+  },
+  "console": {
+    "loading": "Loading Zone Scroll Zoom plugin",
+    "settingsLoaded": "Settings loaded from data.json",
+    "settingsSaved": "Settings saved to data.json",
+    "loadFailed": "Failed to load settings:",
+    "saveFailed": "Failed to save settings:"
+  }
+}

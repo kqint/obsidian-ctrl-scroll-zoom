@@ -1,0 +1,54 @@
+{
+  "settings": {
+    "title": "Zone Scroll Zoom Settings",
+    "language": {
+      "name": "Language",
+      "desc": "Select the display language for this plugin. Auto will follow Obsidian's language setting.",
+      "options": {
+        "auto": "Auto",
+        "en": "English",
+        "zh": "中文"
+      }
+    },
+    "modifierKey": {
+      "name": "Modifier Key",
+      "desc": "Select the modifier key combination to trigger zoom (used with scroll wheel).",
+      "options": {
+        "ctrl": "Ctrl / Cmd",
+        "shift": "Shift",
+        "alt": "Alt",
+        "ctrl+shift": "Ctrl+Shift / Cmd+Shift",
+        "ctrl+alt": "Ctrl+Alt / Cmd+Alt",
+        "shift+alt": "Shift+Alt"
+      }
+    },
+    "zoomStep": {
+      "name": "Zoom Step (Precision)",
+      "desc": "The ratio of interface zoom change per scroll wheel tick.",
+      "placeholder": "0.05"
+    },
+    "currentZoom": {
+      "name": "Current Interface Zoom",
+      "desc": "Current: {value}%",
+      "reset": "Reset to 100%",
+      "resetTip": "Interface reset: 100%"
+    },
+    "currentFontSize": {
+      "name": "Current Editor Font Size",
+      "desc": "Current: {value}px",
+      "reset": "Reset to 16px",
+      "resetTip": "Font reset: 16px"
+    }
+  },
+  "tips": {
+    "fontSize": "Font Size: {value}px",
+    "zoomLevel": "Zoom: {value}%"
+  },
+  "console": {
+    "loading": "Loading Zone Scroll Zoom plugin",
+    "settingsLoaded": "Settings loaded from data.json",
+    "settingsSaved": "Settings saved to data.json",
+    "loadFailed": "Failed to load settings:",
+    "saveFailed": "Failed to save settings:"
+  }
+}
