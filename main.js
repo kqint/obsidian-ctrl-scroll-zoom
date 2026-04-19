@@ -17,7 +17,7 @@ module.exports = class ZoneScrollZoomPlugin extends Plugin {
     settings = null;
 
     async onload() {
-        console.log('加载 Zone Scroll Zoom 插件');
+        console.log('Loading Zone Scroll Zoom plugin');
 
         await this.loadSettings();
         this.addSettingTab(new ZoneScrollZoomSettingTab(this.app, this));
@@ -72,13 +72,13 @@ module.exports = class ZoneScrollZoomPlugin extends Plugin {
                 const data = await this.app.vault.adapter.read(path);
                 // 解析 JSON 并合并默认设置
                 this.settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(data));
-                console.log("配置已从 data.json 加载");
+                console.log("Settings loaded from data.json");
             } else {
                 // 文件不存在则使用默认值
                 this.settings = Object.assign({}, DEFAULT_SETTINGS);
             }
         } catch (error) {
-            console.error("加载配置文件失败:", error);
+            console.error("Failed to load settings:", error);
             this.settings = Object.assign({}, DEFAULT_SETTINGS);
         }
     }
@@ -90,9 +90,9 @@ module.exports = class ZoneScrollZoomPlugin extends Plugin {
             const jsonString = JSON.stringify(this.settings, null, 2);
             // 写入文件
             await this.app.vault.adapter.write(path, jsonString);
-            console.log("配置已保存到 data.json");
+            console.log("Settings saved to data.json");
         } catch (error) {
-            console.error("保存配置文件失败:", error);
+            console.error("Failed to save settings:", error);
         }
     }
     // ============================================================
