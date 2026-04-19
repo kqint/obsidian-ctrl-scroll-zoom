@@ -4,6 +4,8 @@
 
 An Obsidian plugin that scales the interface and font with keyboard shortcuts, where the zoom behavior adapts to your mouse position.
 
+![Demo](assets/demo.gif)
+
 ## Features
 
 - **Shortcut Zoom**: Use keyboard shortcuts to zoom in different areas (default: Ctrl + Scroll Wheel).
