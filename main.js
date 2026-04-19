@@ -333,6 +333,8 @@ class ZoneScrollZoomSettingTab extends PluginSettingTab {
                     this.display();
                 }));
 
+        containerEl.createEl('br');
+
         // 修饰键设置
         new Setting(containerEl)
             .setName(i18n.t('settings.modifierKey.name'))
@@ -384,6 +386,7 @@ class ZoneScrollZoomSettingTab extends PluginSettingTab {
             .setDesc(i18n.t('settings.currentFontSize.desc', { value: currentFontSize }))
             .addButton(btn => btn
                 .setButtonText(i18n.t('settings.currentFontSize.reset'))
+                .setCta()
                 .onClick(async () => {
                     this.app.vault.setConfig('baseFontSize', 16);
                     this.app.updateFontSize();
