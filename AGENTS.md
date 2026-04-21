@@ -30,7 +30,7 @@
 - **构建要求**：开发完成后，**必须**使用构建工具（如 `esbuild`、`rollup`、`webpack`）将 `locales/` 目录下的所有语言文件打包进最终的 `main.js` 中。不允许在运行时从外部加载语言文件。
 - **禁止直接内联**：**严禁**在 `main.js` 中以硬编码对象（如 `BUILT_IN_LOCALES = { en: {...}, zh: {...} }`）的方式直接嵌入语言数据。必须通过构建工具从独立的 `locales/*.json` 文件读取并打包，保持语言文件的独立性和可维护性。
 - **版本管理**：
-  - 每次发布前，**必须**更新 `manifest.json` 中的 `version` 字段（遵循语义化版本 `major.minor.patch`）。
+  - 每次发布前，**必须**更新 `manifest.json` 中的 `version` 字段（遵循语义化版本 `major.minor.patch`），禁止带v。
   - 构建产物 `main.js` **必须**添加到 `.gitignore`，不提交至 GitHub 仓库。
   - 发布时，通过 GitHub Releases 或 CI/CD 附上构建好的 `main.js`。
 
@@ -47,3 +47,80 @@
 - **权限声明**：仅请求必要的权限，避免过度索取
 
 ## 项目理解
+
+### 项目概述
+**Obsidian Zone Scroll Zoom** 是一个 Obsidian 桌面插件，实现基于鼠标位置的智能缩放功能：
+- **鼠标在编辑器区域**：滚动 + 修饰键 → 调整**编辑器字体大小**
+- **鼠标在非编辑器区域**：滚动 + 修饰键 → 调整**整个 Obsidian 界面缩放**
+
+### 技术栈
+- **语言**：TypeScript
+- **构建工具**：esbuild
+- **包管理**：npm
+- **国际化**：自定义 i18n 系统，支持 JSON 格式翻译文件
+
+### 目录结构
+```
+obsidian-zone-scroll-zoom/
+├── src/
+│   ├── main.ts          # 插件主入口，注册事件监听器
+│   ├── settings.ts      # 插件设置界面
+│   ├── types.ts         # TypeScript 类型定义
+│   └── i18n.ts          # 国际化实现
+├── locales/
+│   ├── en.json          # 英文翻译
+│   └── zh-CN.json       # 简体中文翻译
+├── esbuild.config.mjs   # esbuild 构建配置
+├── tsconfig.json        # TypeScript 配置
+├── package.json         # 依赖和脚本
+├── manifest.json        # 插件清单文件
+└── .gitignore          # 忽略构建产物
+```
+
+### 核心功能模块
+1. **事件处理** (`src/main.ts`)
+   - 监听 `wheel` 事件，检测修饰键状态
+   - 根据鼠标位置区分缩放区域（编辑器 vs 界面）
+   - 显示实时缩放提示（OSD）
+
+2. **设置界面** (`src/settings.ts`)
+   - 语言选择（自动/英文/中文）
+   - 修饰键配置（Ctrl、Shift、Alt 及其组合）
+   - 缩放精度调整
+   - 当前状态显示与重置功能
+
+3. **国际化** (`src/i18n.ts`)
+   - 根据用户设置或系统语言加载对应翻译
+   - 支持变量插值（如 `{value}%`）
+   - 翻译键层级结构（如 `settings.title`）
+
+4. **类型系统** (`src/types.ts`)
+   - 插件设置接口 `ZoneScrollZoomSettings`
+   - 修饰键类型 `ModifierKey`
+   - 语言设置类型 `LanguageSetting`
+   - 翻译数据结构 `TranslationData`
+
+### 构建流程
+1. **开发模式**：`npm run dev` → `esbuild` 监听文件变化，生成带 sourcemap 的 `main.js`
+2. **生产构建**：`npm run build` → `esbuild` 打包 TypeScript 和 JSON 文件，生成优化后的 `main.js`
+3. **语言文件打包**：`esbuild` 通过 `loader: { '.json': 'json' }` 将 `locales/*.json` 内联到 bundle 中
+
+### 发布规范
+- 版本号：遵循语义化版本，更新 `manifest.json` 的 `version` 字段
+- 构建产物：`main.js` 不提交到 git，通过 GitHub Releases 分发
+- 发布包：包含 `main.js` 和 `manifest.json` 的 zip 文件
+
+### 配置说明
+- **用户配置**：保存在 `data.json` 中（自动生成）
+- **插件清单**：`manifest.json` 定义插件元数据
+- **构建配置**：`esbuild.config.mjs` 定义打包规则
+- **TypeScript 配置**：`tsconfig.json` 启用严格类型检查
+
+### 依赖关系
+- **生产依赖**：无（纯 Obsidian API 调用）
+- **开发依赖**：`obsidian`（类型定义）、`esbuild`、`typescript`、`tslib`、`@types/node`、`builtin-modules`
+
+### 注意事项
+- 插件仅支持桌面版 Obsidian（依赖 `electron` 的 `webFrame` API）
+- 编辑器字体缩放使用 Obsidian 内部 API `vault.getConfig/setConfig`
+- 界面缩放使用 `electron.webFrame.getZoomFactor/setZoomFactor`
