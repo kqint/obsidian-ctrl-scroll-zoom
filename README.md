@@ -26,9 +26,28 @@ This plugin lets you **zoom where your mouse is** — scale only the font in the
 ## Installation
 
 #### Manual Installation (This plugin is not yet available in the Obsidian community plugin marketplace)
-1. Download [obsidian-zone-scroll-zoom-1.3.0.zip](https://github.com/kqint/obsidian-zone-scroll-zoom/releases/download/1.3.0/obsidian-zone-scroll-zoom-1.3.0.zip)
-2. Create an `obsidian-zone-scroll-zoom` folder inside `.obsidian/plugins/`, extract the files from the zip, and place them into this folder.
+1. Download `main.js` and `manifest.json` from [releases/latest](https://github.com/kqint/obsidian-zone-scroll-zoom/releases/latest).
+2. Create an `obsidian-zone-scroll-zoom` folder inside `.obsidian/plugins/`, and place `main.js` and `manifest.json` into this folder.
 3. Enable the plugin in Obsidian settings.
+
+## Internationalization
+
+Language source files are located in `locales/`:
+
+- `locales/en.json`
+- `locales/zh-CN.json`
+
+Use the following command to bundle these language files into `main.js`:
+
+```bash
+npm run build
+```
+
+To add a new language:
+
+1. Copy `locales/en.json`, for example to `locales/ja.json`.
+2. Translate all values.
+3. Add the corresponding language option in `src/main.ts` and run `npm run build`.
 
 ## License
 
